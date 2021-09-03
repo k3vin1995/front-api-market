@@ -148,6 +148,7 @@ if(count($hotProducts)>10){
                                 <div class="ps-product__variants" data-item="4" data-md="3" data-sm="3" data-arrow="false">
 
                                     <?php foreach ($gallery as $index => $image): ?>
+                                    
 
                                         <div class="item">
                                             <img src="img/products/<?php echo $value->url_category ?>/gallery/<?php echo $image ?>" alt="<?php echo $value->name_product ?>">
