@@ -209,6 +209,8 @@ if(!empty($urlParams[0])){
 
     <!-- Chart -->
     <script src="js/plugins/Chart.min.js"></script>
+    
+    <script src="js/plugins/twbs-pagination.min.js"></script>
 	
 </head>
 

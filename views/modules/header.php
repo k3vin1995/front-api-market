@@ -172,17 +172,22 @@ $menuCategories = CurlController::request($url, $method, $fields, $header)->resu
 				Search
 				======================================-->
 
-                <div class="header__content-center">
-                    <form class="ps-form--quick-search" action="index.html" method="get">
-                        
-                        <input class="form-control" type="text" placeholder="I'm shopping for...">
-                        <button>Search</button>
-                    </form>
-                </div>
+            <div class="header__content-center">
 
-                <div class="header__content-right">
+                <form class="ps-form--quick-search">
+                  
+                    <input class="form-control inputSearch" type="text" placeholder="I'm shopping for...">
 
-                    <div class="header__actions">
+                    <button type="button" class="btnSearch" path="<?php echo $path ?>">Search</button>
+
+                </form>
+                
+            </div>
+
+            <div class="header__content-right">
+
+                <div class="header__actions">
+                    
 
                     	<!--=====================================
 						Wishlist
