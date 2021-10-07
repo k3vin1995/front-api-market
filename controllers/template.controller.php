@@ -121,5 +121,18 @@ class TemplateController{
 
 	}
 
+	/*=============================================
+	Descuento de la oferta
+	=============================================*/
+
+	static public function capitalize($value){
+
+		$text = str_replace("_"," ",$value);
+
+		return ucwords($text);
+
+	}
+
+
 }
 

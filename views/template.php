@@ -1,11 +1,10 @@
 <?php 
 
 /*=============================================
-=     traer dominio principal           =
+Traer el dominio principal
 =============================================*/
+
 $path = TemplateController::path();
-
-
 
 /*=============================================
 Traer el total de productos
@@ -18,20 +17,21 @@ $header = array();
 
 $totalProducts = CurlController::request($url, $method, $fields, $header)->total;
 
-
 /*=============================================
-=     Capturamos las rutas de la URL            =
+Capturar las rutas de la URL
 =============================================*/
-
 
 $routesArray = explode("/", $_SERVER['REQUEST_URI']);
 
-if (!empty(array_filter($routesArray)[1])){
-    $urlParams = explode("&", array_filter($routesArray)[1]);
+if(!empty(array_filter($routesArray)[1])){
+
+	$urlParams = explode("&", array_filter($routesArray)[1]);	
+	
 }
 
 if(!empty($urlParams[0])){
-    /*=============================================
+
+	/*=============================================
     Filtrar categorías con el parámetro URL
     =============================================*/
 
@@ -41,42 +41,244 @@ if(!empty($urlParams[0])){
     $header = array();
 
     $urlCategories = CurlController::request($url, $method, $fields, $header);
-
-
+    
     if($urlCategories->status == 404){
-        /*=============================================
-        Filtrar subcategorías con el parámetro URL
-        =============================================*/
 
-        $url = CurlController::api()."subcategories?linkTo=url_subcategory&equalTo=".$urlParams[0];
-        $method = "GET";
-        $fields = array();
-        $header = array();
+    	/*=============================================
+	    Filtrar subcategorías con el parámetro URL
+	    =============================================*/
 
-        $urlSubCategories = CurlController::request($url, $method, $fields, $header);
+	    $url = CurlController::api()."subcategories?linkTo=url_subcategory&equalTo=".$urlParams[0];
+	    $method = "GET";
+	    $fields = array();
+	    $header = array();
 
-        if($urlSubCategories->status == 404){
-        /*=============================================
-        Filtrar Producto con el parámetro URL
-        =============================================*/
+	    $urlSubCategories = CurlController::request($url, $method, $fields, $header);
+	    
+	   	if($urlSubCategories->status == 404){
 
-        $url = CurlController::api()."products?linkTo=url_product&equalTo=".$urlParams[0];
-        $method = "GET";
-        $fields = array();
-        $header = array();
+	   		/*=============================================
+		    Filtrar productos con el parámetro URL
+		    =============================================*/
 
-        $urlProduct = CurlController::request($url, $method, $fields, $header);
+		    $url = CurlController::api()."products?linkTo=url_product&equalTo=".$urlParams[0];
+		    $method = "GET";
+		    $fields = array();
+		    $header = array();
 
-        }
+		    $urlProduct = CurlController::request($url, $method, $fields, $header);
+
+		    if($urlProduct->status == 404){
+
+		    	/*=============================================
+				Validar si hay parámetros de paginación
+				=============================================*/
+				if(isset($urlParams[1])){
+
+					if(is_numeric($urlParams[1])){
+
+
+						$startAt = ($urlParams[1]*6) - 6;
+
+					}else{
+
+					 	echo '<script>
+
+				     	window.location = "'.$path.$urlParams[0].'";
+
+				        </script>';
+
+					}
+
+				}else{
+
+					$startAt = 0;
+				}
+
+				/*=============================================
+				Validar si hay parámetros de orden
+				=============================================*/
+
+				if(isset($urlParams[2])){
+
+					if(is_string($urlParams[2])){
+
+						if($urlParams[2] == "new"){
+
+							$orderBy = "id_product";
+							$orderMode = "DESC";
+
+						}
+
+						else if($urlParams[2] == "latest"){
+
+							$orderBy = "id_product";
+							$orderMode = "ASC";
+
+						}
+
+						else if($urlParams[2] == "low"){
+
+							$orderBy = "price_product";
+							$orderMode = "ASC";
+
+						}
+
+						else if($urlParams[2] == "high"){
+
+							$orderBy = "price_product";
+							$orderMode = "DESC";
+
+						}else{
+
+							echo '<script>
+
+					        window.location = "'.$path.$urlParams[0].'";
+
+					        </script>'; 
+
+						}
+
+					}else{
+
+					  	echo '<script>
+
+				        window.location = "'.$path.$urlParams[0].'";
+
+				        </script>'; 
+
+					}
+
+				}else{
+
+					$orderBy = "id_product";
+					$orderMode = "DESC";
+				}
+
+		    	/*=============================================
+		    	Filtrar tabla producto por el nombre con el parámetro URL de búsqueda
+		    	=============================================*/
+
+			    $url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=name_product&search=".$urlParams[0]."&orderBy=".$orderBy."&orderMode=".$orderMode."&startAt=".$startAt."&endAt=6";
+			    $method = "GET";
+			    $fields = array();
+			    $header = array();
+
+			    $urlSearch = CurlController::request($url, $method, $fields, $header);
+			    
+			    if($urlSearch->status == 404){
+
+			    	/*=============================================
+			    	Filtrar tabla producto por la lista de títulos con el parámetro URL de búsqueda
+			    	=============================================*/
+
+				    $url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=title_list_product&search=".$urlParams[0]."&orderBy=".$orderBy."&orderMode=".$orderMode."&startAt=".$startAt."&endAt=6";
+				    $method = "GET";
+				    $fields = array();
+				    $header = array();
+
+				    $urlSearch = CurlController::request($url, $method, $fields, $header);
+				    
+				    if($urlSearch->status == 404){
+
+				    	/*=============================================
+				    	Filtrar tabla producto por las palabras claves con el parámetro URL de búsqueda
+				    	=============================================*/
+
+					    $url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=tags_product&search=".$urlParams[0]."&orderBy=".$orderBy."&orderMode=".$orderMode."&startAt=".$startAt."&endAt=6";
+					    $method = "GET";
+					    $fields = array();
+					    $header = array();
+
+					    $urlSearch = CurlController::request($url, $method, $fields, $header);
+					    
+					    if($urlSearch->status == 404){
+
+					    	/*=============================================
+					    	Filtrar tabla producto por el resumen del producto con el parámetro URL de búsqueda
+					    	=============================================*/
+
+						    $url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=summary_product&search=".$urlParams[0]."&orderBy=".$orderBy."&orderMode=".$orderMode."&startAt=".$startAt."&endAt=6";
+						    $method = "GET";
+						    $fields = array();
+						    $header = array();
+
+						    $urlSearch = CurlController::request($url, $method, $fields, $header);
+
+						    if($urlSearch->status == 200){
+
+						    	/*=============================================
+					    		Total de productos encontrados por el resumen con el parámetro URL de búsqueda
+					    		=============================================*/
+
+				    		  	$url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=summary_product&search=".$urlParams[0];
+							    $method = "GET";
+							    $fields = array();
+							    $header = array();
+
+						   		$totalSearch = CurlController::request($url, $method, $fields, $header)->total;
+
+						    }
+
+					    }else{
+
+					    	/*=============================================
+				    		Total de productos encontrados por las palabras claves con el parámetro URL de búsqueda
+				    		=============================================*/
+
+			    		  	$url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=tags_product&search=".$urlParams[0];
+						    $method = "GET";
+						    $fields = array();
+						    $header = array();
+
+					   		$totalSearch = CurlController::request($url, $method, $fields, $header)->total;
+					    }
+
+
+				    }else{
+
+				    	/*=============================================
+			    		Total de productos encontrados  por la lista de títulos con el parámetro URL de búsqueda
+			    		=============================================*/
+
+		    		  	$url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=title_list_product&search=".$urlParams[0];
+					    $method = "GET";
+					    $fields = array();
+					    $header = array();
+
+				   		$totalSearch = CurlController::request($url, $method, $fields, $header)->total;
+					
+					}
+
+
+			    }else{
+
+			    	/*=============================================
+		    		Total de productos encontrados por el nombre con el parámetro URL de búsqueda
+		    		=============================================*/
+
+	    		  	$url = CurlController::api()."relations?rel=products,categories,subcategories,stores&type=product,category,subcategory,store&linkTo=name_product&search=".$urlParams[0];
+				    $method = "GET";
+				    $fields = array();
+				    $header = array();
+
+			   		$totalSearch = CurlController::request($url, $method, $fields, $header)->total;
+
+
+			    }
+
+			}
+
+	   	}
 
     }
+
 
 }
 
 
+?>   
 
-
- ?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -95,7 +297,7 @@ if(!empty($urlParams[0])){
 
     <base href="views/">
 
-	<link rel="icon" href="img/template/Favicon.ico">
+    <link rel="icon" href="img/template/icono.png">   
 
 	<!--=====================================
 	CSS
@@ -209,7 +411,9 @@ if(!empty($urlParams[0])){
 
     <!-- Chart -->
     <script src="js/plugins/Chart.min.js"></script>
-    
+	
+	 <!-- pagination -->
+	<!-- http://josecebe.github.io/twbs-pagination/ -->
     <script src="js/plugins/twbs-pagination.min.js"></script>
 	
 </head>
@@ -219,102 +423,79 @@ if(!empty($urlParams[0])){
     <!--=====================================
     Preload
     ======================================-->
+
     <div id="loader-wrapper">
         <img src="img/template/loader.jpg">
         <div class="loader-section section-left"></div>
         <div class="loader-section section-right"></div>
     </div>  
-    
 
 	<!--=====================================
 	Header Promotion
 	======================================-->
-    <?php include "modules/top-banner.php"?>
+
+	<?php include "modules/top-banner.php" ?>
+
+     <!--=====================================
+    Header
+    ======================================-->
+
+    <?php include "modules/header.php" ?> 
 
     <!--=====================================
-	Header
-	======================================-->
+    Header Mobile
+    ======================================-->
 
-    <?php include "modules/header.php"?>
+   <?php include "modules/header-mobile.php" ?>
 
-  	<!--=====================================
-	Header Mobile
-	======================================-->
+    <!--=====================================
+    Pages
+    ======================================-->
+	
+	<?php 
 
-    <?php include "modules/header-mobile.php"?>
+	if(!empty($urlParams[0])){
+
+		if($urlCategories->status == 200 || $urlSubCategories->status == 200 ){
+
+			include "pages/products/products.php";
+
+		}else if($urlProduct->status == 200){
+
+			include "pages/product/product.php";
+
+		}else if($urlSearch->status == 200){
+
+		   include "pages/search/search.php";
+
+		}else{
+
+			include "pages/404/404.php";
+
+		}
+
+	}else{
+
+		include "pages/home/home.php";
+
+	}
+
+
+	?>  
 
    
-    <!--=====================================
-    pages
-    ======================================-->  
-
-
-    <?php 
-
-    if(!empty($urlParams[0])){
-
-        if(!empty($urlCategories->status == 200 || $urlSubCategories->status == 200)){
-
-            include "pages/products/products.php";
-
-        }else if($urlProduct->status == 200){
-
-            include "pages/product/product.php";
-
-        }else{
-            include "pages/404/404.php";
-        }
-
-    }else{
-
-        include "pages/home/home.php";
-
-    }
-
-    
-
-     ?>
-
 
     <!--=====================================
 	Newletter
 	======================================-->  
 
-    <?php include "modules/newletter.php"?>
+    <?php include "modules/newletter.php" ?>
 
     <!--=====================================
 	Footer
 	======================================-->  
-
-    <?php include "modules/footer.php"?>
-
-    <!--=====================================
-    PopUp
-
-    <div class="ps-site-overlay"></div>
-
-    <div class="ps-popup" id="subscribe" data-time="500">
-        <div class="ps-popup__content bg--cover" data-background="img/bg/subscribe.jpg" style="background: url(img/bg/subscribe.jpg);"><a class="ps-popup__close" href="#"><i class="icon-cross"></i></a>
-            <form class="ps-form--subscribe-popup" action="index.html" method="get">
-                <div class="ps-form__content">
-                    <h4>Get <strong>25%</strong> Discount</h4>
-                    <p>Subscribe to the Martfury mailing list <br> to receive updates on new arrivals, special offers <br> and our promotions.</p>
-                        <div class="form-group">
-                            <input class="form-control" type="text" placeholder="Email Address" required="">
-                            <button class="ps-btn">Subscribe</button>
-                        </div>
-                        <div class="ps-checkbox">
-                            <input class="form-control" type="checkbox" id="not-show" name="not-show">
-                            <label for="not-show">Don't show this popup again</label>
-                        </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    ======================================-->
-
     
+    <?php include "modules/footer.php" ?>
 
 	<!--=====================================
 	JS PERSONALIZADO
