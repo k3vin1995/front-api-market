@@ -4,7 +4,7 @@
 =     traer el listado de categorias        =
 =============================================*/
 
-$url = CurlController::api()."categories";
+$url = CurlController::api()."categories?select=url_category,name_category,icon_category,title_list_category";
 $method = "GET";
 $fields = array();
 $header = array();
@@ -133,7 +133,7 @@ $menuCategories = CurlController::request($url, $method, $fields, $header)->resu
 
                                             <?php 
 
-                                            $url = CurlController::api()."subcategories?linkTo=title_list_subcategory&equalTo=".rawurlencode($value);
+                                            $url = CurlController::api()."subcategories?linkTo=title_list_subcategory&equalTo=".rawurlencode($value)."&select=url_subcategory,name_subcategory";
                                             $method = "GET";
                                             $fields = array();
                                             $header = array();

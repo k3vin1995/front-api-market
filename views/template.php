@@ -10,7 +10,7 @@ $path = TemplateController::path();
 Traer el total de productos
 =============================================*/
 
-$url = CurlController::api()."products";
+$url = CurlController::api()."products?select=id_product";
 $method = "GET";
 $fields = array();
 $header = array();
@@ -35,7 +35,7 @@ if(!empty($urlParams[0])){
     Filtrar categorías con el parámetro URL
     =============================================*/
 
-    $url = CurlController::api()."categories?linkTo=url_category&equalTo=".$urlParams[0];
+    $url = CurlController::api()."categories?linkTo=url_category&equalTo=".$urlParams[0]."&select=url_category";
     $method = "GET";
     $fields = array();
     $header = array();
@@ -48,7 +48,7 @@ if(!empty($urlParams[0])){
 	    Filtrar subcategorías con el parámetro URL
 	    =============================================*/
 
-	    $url = CurlController::api()."subcategories?linkTo=url_subcategory&equalTo=".$urlParams[0];
+	    $url = CurlController::api()."subcategories?linkTo=url_subcategory&equalTo=".$urlParams[0]."&select=url_subcategory";
 	    $method = "GET";
 	    $fields = array();
 	    $header = array();
@@ -61,7 +61,7 @@ if(!empty($urlParams[0])){
 		    Filtrar productos con el parámetro URL
 		    =============================================*/
 
-		    $url = CurlController::api()."products?linkTo=url_product&equalTo=".$urlParams[0];
+		    $url = CurlController::api()."products?linkTo=url_product&equalTo=".$urlParams[0]."&select=url_product";
 		    $method = "GET";
 		    $fields = array();
 		    $header = array();
